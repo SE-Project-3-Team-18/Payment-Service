@@ -6,8 +6,7 @@ const stripe = require('stripe')(config.SECRET_KEY);
 async function refundPayment(paymentId) {
   const payment = await Payment.findOne({ _id: paymentId });
   if (payment) {
-    // There is a payment for a cancelled order
-    if (payment.paymentStatus === 'completed') {
+    if (payment.paymentStatus === 'paid') {
       stripe.refunds.create({
         payment_intent: payment.paymentIntentId,
         charge: payment.paymentAmount * 100,

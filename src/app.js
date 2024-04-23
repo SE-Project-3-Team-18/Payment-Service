@@ -56,6 +56,6 @@ app.get('/api', async (req, res, next) => {
 })
 
 app.use('/api', errorHandler)
-app.use('/api', paymentRoutes);
+app.use('/api/payment', paymentRoutes);
 
 module.exports = app

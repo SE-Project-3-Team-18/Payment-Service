@@ -4,6 +4,7 @@ const config = '../config/config.js';
 const Payment = require('../models/payment');
 const { paymentCreatedPublisher } = require('../eventhandlers/paymentCreatedPublisher');
 const stripe = require('stripe')(config.SECRET_KEY);
+const { getEmailByUserId } = require('../services/userService');
 
 async function savePaymentSession(session) {
   const payment = new Payment({
@@ -24,7 +25,7 @@ async function savePaymentSession(session) {
 };
 
 async function getPaymentById (req, res, next) {
-  const { paymentId } = req.query;
+  const paymentId  = req.params.paymentId;
   try {
     const payment = await Payment.findOne({ _id: paymentId });
     if (!payment) {
@@ -73,7 +74,7 @@ async function handleCheckout (req, res) {
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      customer_email: 'joseph.vijay@gmail.com',
+      customer_email: getEmailByUserId(userId),
       billing_address_collection: 'required',
       success_url: config.SUCCESS_URL,
       cancel_url: config.CANCEL_URL,
