@@ -7,13 +7,13 @@ const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
 const CustomLogger = require('./utils/logger')
-const { errorHandler, CustomError } = require('./utils/error')
+const { errorHandler } = require('./utils/error')
 const ServiceRegistryClient = require('./utils/serviceRegistry')
-
+const paymentRoutes = require('./routes/paymentRoutes')
 const mongoUrl = config.MONGODB_URI
 const connection = mongoose.connection
 mongoose.set('strictQuery', false)
-mongoose.connect(mongoUrl, { useNewurlParser: true })
+mongoose.connect(mongoUrl)
   .then(() => {
     console.log('connected to MongoDB')
   })
@@ -36,7 +36,7 @@ app.use('/', (req, res, next) => {
 })
 
 app.use(cors())
-app.use(express.json())
+// app.use(express.json())
 
 app.get('/api', async (req, res, next) => {
   try {
@@ -56,5 +56,6 @@ app.get('/api', async (req, res, next) => {
 })
 
 app.use('/api', errorHandler)
+app.use('/api', paymentRoutes);
 
 module.exports = app
