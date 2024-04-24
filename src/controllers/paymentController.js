@@ -41,7 +41,6 @@ async function getPaymentById (req, res, next) {
 async function handleCheckout (req, res) {
   try {
     const userId = req.get('X-User-Id')
-    console.log("UserId",userId);
     const userCart = await cartService.getCartDetails(userId)
     if (!userCart || userCart.items.length === 0) {
       return res.status(400).json({ error: 'Cart is empty' });
@@ -67,7 +66,6 @@ async function handleCheckout (req, res) {
     if (lineItems.length === 0) {
       return res.status(400).json({ error: 'These products are not available right now' });
     }
-    console.log("Before Stripe Payment");
     const session = await stripe.checkout.sessions.create({
       metadata: {
         userId,

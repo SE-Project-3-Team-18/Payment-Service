@@ -12,7 +12,7 @@ async function orderCancelledListener(subject, refundPayment) {
       if (err) {
         console.log(err.message);
       } else {
-        console.log(`Received message: ${msg.data}`);
+        console.log(`Received message: ${sc.decode(msg.data)}`);
         const paymentId = sc.decode(msg.data)
         refundPayment(paymentId);
       }
