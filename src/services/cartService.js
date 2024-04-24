@@ -6,15 +6,10 @@ const axios = require('axios');
 async function getCartDetails(userId) {
   try {
     const CartServiceUrl = await ServiceRegistryClient.getInstance().getUrl('Cart');
-    const response = await axios.get(`${CartServiceUrl}/getcart`,
-      { params: { userId } }
-    );
+    const url = new URL(`/api/view/${userId}`, CartServiceUrl).toString()
 
-    if (!response.ok) {
-      throw new CustomError('HTTP error! in fetching cart details', 500, false);
-    }
-
-    const data = await response.json();
+    const response = await axios.get(url);
+    const data = response.data;
     return data;
   } catch (error) {
     console.error('Error fetching cart details:', error.message);

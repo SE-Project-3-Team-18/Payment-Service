@@ -1,9 +1,10 @@
 /* eslint-disable no-undef */
 /* eslint-disable max-len */
-const config = '../config/config.js';
+const config = require('../config/config.js');
 const Payment = require('../models/payment');
 const { paymentCreatedPublisher } = require('../eventhandlers/paymentCreatedPublisher');
 const stripe = require('stripe')(config.SECRET_KEY);
+const cartService = require('../services/cartService');
 
 async function savePaymentSession(session) {
   const payment = new Payment({
@@ -39,8 +40,8 @@ async function getPaymentById (req, res, next) {
 async function handleCheckout (req, res) {
   try {
     const userId = req.get('X-User-Id')
+    console.log("UserId",userId);
     const userCart = await cartService.getCartDetails(userId)
-
     if (!userCart || userCart.items.length === 0) {
       return res.status(400).json({ error: 'Cart is empty' });
     }
@@ -65,10 +66,11 @@ async function handleCheckout (req, res) {
     if (lineItems.length === 0) {
       return res.status(400).json({ error: 'These products are not available right now' });
     }
+    console.log("Before Stripe Payment");
     const session = await stripe.checkout.sessions.create({
       metadata: {
         userId,
-        address: JSON.stringify(address),
+        // address: JSON.stringify(address),
       },
       payment_method_types: ['card'],
       line_items: lineItems,
@@ -78,7 +80,12 @@ async function handleCheckout (req, res) {
       success_url: config.SUCCESS_URL,
       cancel_url: config.CANCEL_URL,
     });
-    res.send(200, session);
+    res
+      .status(200)
+      .json({
+        redirectUrl: session.url
+      })
+    console.log("Succesful Stripe Payment");
     return {
       message: 'Payment checkout session successfully created',
       success: true,
