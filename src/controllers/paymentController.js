@@ -109,7 +109,6 @@ async function handleWebhook(req, res) {
       userId: payment.userId,
       paymentId: payment._id,
       address: session.metadata.address,
-      email: session.customer_email,
     }
     console.log('Payment created event data:', eventData);
     try {
