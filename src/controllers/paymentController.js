@@ -26,13 +26,13 @@ async function savePaymentSession(session) {
 };
 
 async function getPaymentById (req, res, next) {
-  const paymentId  = req.params.paymentId;
+  const paymentId = req.params.paymentId;
   try {
     const payment = await Payment.findOne({ _id: paymentId });
     if (!payment) {
       throw new CustomError('Payment Session not found', 404, false);
     }
-    res.send(payment);
+    return res.status(200).json(payment);
   } catch (error) {
     next(error);
   }
@@ -71,7 +71,6 @@ async function handleCheckout (req, res) {
     const session = await stripe.checkout.sessions.create({
       metadata: {
         userId,
-        // address: JSON.stringify(address),
       },
       payment_method_types: ['card'],
       line_items: lineItems,
@@ -81,12 +80,10 @@ async function handleCheckout (req, res) {
       success_url: config.SUCCESS_URL,
       cancel_url: config.CANCEL_URL,
     });
-    res
-      .status(200)
+    res.status(200)
       .json({
-        redirectUrl: session.url
+        redirectUrl: session.url,
       })
-    console.log("Succesful Stripe Payment");
     return {
       message: 'Payment checkout session successfully created',
       success: true,
@@ -109,17 +106,17 @@ async function handleWebhook(req, res) {
     console.log(`Webhook signature verification failed:  ${err}`);
     return res.sendStatus(400);
   }
-  if (event.type === 'checkout.session.completed') {
+  if (event.type !== 'checkout.session.completed') {
     const session = event.data.object;
     const payment = savePaymentSession(session);
     const eventData = {
       userId: payment.userId,
       paymentId: payment._id,
-      address: session.metadata.address,
+      address: JSON.stringify(session.customer_details.address),
     }
     console.log('Payment created event data:', eventData);
     try {
-      await paymentCreatedPublisher('payment:created', eventData);
+      await paymentCreatedPublisher(config.PAYMENT_CREATED, eventData);
     } catch (err) {
       console.error('Error publishing payment-created event:', err);
       return res.status(500).send('Error publishing event');

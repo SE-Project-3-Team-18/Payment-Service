@@ -6,11 +6,9 @@ const axios = require('axios');
 async function getEmailByUserId(userId) {
   try {
     const UserServiceUrl = await ServiceRegistryClient.getInstance().getUrl('User-Management');
-    const url = new URL('/api/get-email/:userId', UserServiceUrl).toString()
-    const emailDetails = await axios.post(url,
-        { params: { userId } }
-    );
-    return emailDetails.email;
+    const url = new URL(`/api/get-email/${userId}`, UserServiceUrl).toString()
+    const emailDetails = await axios.get(url);
+    return emailDetails.data.email;
   } catch (e) {
     let error = null
     if (axios.isAxiosError(e) === true) {

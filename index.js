@@ -13,7 +13,7 @@ app.listen(config.PORT, () => {
   console.log(`Server running on port ${config.PORT}`)
 })
 
-// orderCancelledListener(
-//   config.NATS_SUBJECT,
-//   paymentService.refundPayment
-// );
+orderCancelledListener(
+  config.ORDER_CANCELLED,
+  paymentService.refundPayment
+);

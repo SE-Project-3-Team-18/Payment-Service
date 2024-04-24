@@ -14,7 +14,8 @@ const PUBLISHABLE_KEY = process.env.PUBLISHABLE_KEY
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET
 const SUCCESS_URL = process.env.SUCCESS_URL
 const CANCEL_URL = process.env.CANCEL_URL
-const NATS_SUBJECT = process.env.NATS_SUBJECT
+const PAYMENT_CREATED = 'payment:created'
+const ORDER_CANCELLED = 'order:cancelled'
 
 module.exports = {
   PORT,
@@ -27,5 +28,6 @@ module.exports = {
   WEBHOOK_SECRET,
   SUCCESS_URL,
   CANCEL_URL,
-  NATS_SUBJECT,
+  PAYMENT_CREATED,
+  ORDER_CANCELLED,
 }

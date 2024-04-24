@@ -11,7 +11,6 @@ async function refundPayment(paymentId) {
         payment_intent: payment.paymentIntentId,
         charge: payment.paymentAmount * 100,
       });
-      payment.paymentStatus = 'refunded';
     }
     const updatedPayment = await Payment.findByIdAndUpdate(
       paymentId,
