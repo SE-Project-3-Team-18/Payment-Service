@@ -105,9 +105,10 @@ async function handleWebhook(req, res) {
     console.log(`Webhook signature verification failed:  ${err}`);
     return res.sendStatus(400);
   }
-  if (event.type !== 'checkout.session.completed') {
+  if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const payment = savePaymentSession(session);
+    const payment = await savePaymentSession(session);
+    console.log('Payment details', payment)
     const eventData = {
       userId: payment.userId,
       paymentId: payment._id,

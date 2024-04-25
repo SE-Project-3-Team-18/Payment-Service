@@ -4,8 +4,8 @@ const axios = require('axios');
 
 async function sendPaymentDetails(data) {
   try {
-    const UserServiceUrl = await ServiceRegistryClient.getInstance().getUrl('User-Management');
-    const url = new URL('/api/order/create', UserServiceUrl).toString()
+    const OrderServiceUrl = await ServiceRegistryClient.getInstance().getUrl('Order-Management');
+    const url = new URL('/api/order/create', OrderServiceUrl).toString()
     const response = await axios.post(url, data);
     return response.data;
   } catch (error) {
