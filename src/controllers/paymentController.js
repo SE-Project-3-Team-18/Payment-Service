@@ -2,10 +2,11 @@
 /* eslint-disable max-len */
 const config = require('../config/config.js');
 const Payment = require('../models/payment');
-const { paymentCreatedPublisher } = require('../eventhandlers/paymentCreatedPublisher');
 const stripe = require('stripe')(config.SECRET_KEY);
 const cartService = require('../services/cartService');
+const paymentService = require('../services/paymentService');
 const { getEmailByUserId } = require('../services/userService');
+const { sendPaymentDetails } = require('../services/orderService');
 
 async function savePaymentSession(session) {
   const payment = new Payment({
@@ -112,19 +113,31 @@ async function handleWebhook(req, res) {
       paymentId: payment._id,
       address: JSON.stringify(session.customer_details.address),
     }
-    console.log('Payment created event data:', eventData);
+    console.log('Payment data:', eventData);
     try {
-      await paymentCreatedPublisher(config.PAYMENT_CREATED, eventData);
+      await sendPaymentDetails(eventData);
     } catch (err) {
-      console.error('Error publishing payment-created event:', err);
+      console.error('Error while sending payment details to order service', err);
       return res.status(500).send('Error publishing event');
     }
   }
   res.status(200).end();
 };
 
+async function refundPayment(req, res) {
+  const paymentId = req.params.paymentId;
+  try {
+    await paymentService.refundPayment(paymentId);
+    return res.status(200).json({ message: 'Payment refunded successfully' });
+  } catch (error) {
+    console.error('Error refunding payment:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
 module.exports = {
   getPaymentById,
   handleCheckout,
   handleWebhook,
+  refundPayment,
 };
